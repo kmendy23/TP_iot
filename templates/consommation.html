@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consommation du Logement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('/static/images/consommation.png') no-repeat center center fixed;
+            background-size: cover; /* L'image couvre toute la page */
+            color: black; /* Texte en noir */
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 5px rgba(255, 255, 255, 0.8); /* Ajout d'une ombre blanche légère */
+        }
+
+        .dropdown {
+            margin: 20px 0;
+            font-size: 18px;
+            padding: 10px;
+            width: 250px;
+            border-radius: 5px;
+        }
+
+        label {
+            font-size: 16px;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 5px rgba(255, 255, 255, 0.8); /* Ajout d'une ombre blanche légère */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Titre -->
+        <h1>Consommation du Logement</h1>
+
+        <p>Choisissez un type de consommation et une échelle de temps pour afficher les données.</p>
+
+        <!-- Liste déroulante pour les types de consommation -->
+        <label for="type">Type de consommation :</label>
+        <select id="type" class="dropdown" onchange="navigate(this.value)">
+            <option value="" disabled selected>-- Sélectionnez un type --</option>
+            <option value="electricite">Électricité</option>
+            <option value="eau">Eau</option>
+            <option value="dechets">Déchets</option>
+        </select>
+
+        <!-- Liste déroulante pour les échelles de temps -->
+        <label for="echelle">Échelle de temps :</label>
+        <select id="echelle" class="dropdown" onchange="setScale(this.value)">
+            <option value="" disabled selected>-- Sélectionnez une échelle --</option>
+            <option value="jour">Journalière</option>
+            <option value="semaine">Hebdomadaire</option>
+            <option value="mois">Mensuelle</option>
+            <option value="annee">Annuelle</option>
+        </select>
+    </div>
+
+    <script>
+        let type = '';  // Type de consommation choisi
+        let echelle = '';  // Échelle de temps choisie
+
+        // Met à jour le type de consommation sélectionné
+        function navigate(selectedType) {
+            type = selectedType;
+            if (echelle) {
+                window.location.href = `/consommation/${type}/${echelle}`;
+            }
+        }
+
+        // Met à jour l'échelle de temps sélectionnée
+        function setScale(selectedScale) {
+            echelle = selectedScale;
+            if (type) {
+                window.location.href = `/consommation/${type}/${echelle}`;
+            }
+        }
+    </script>
+</body>
+</html>

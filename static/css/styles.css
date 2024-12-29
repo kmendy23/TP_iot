@@ -1,0 +1,100 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    scroll-behavior: smooth;
+}
+
+/* Section 1 : Message de bienvenue */
+.welcome-section {
+    height: 100vh;
+    background: url('{{ url_for("static", filename="images/background.jpg") }}') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+}
+
+.welcome-section h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.welcome-section p {
+    font-size: 1.2rem;
+    margin-top: 10px;
+}
+
+.welcome-section a {
+    margin-top: 20px;
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: white;
+    background-color: #28a745;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.welcome-section a:hover {
+    background-color: #218838;
+}
+
+/* Section 2 : Boutons de navigation */
+.buttons-section {
+    padding: 40px 20px;
+    background-color: #f4f4f4;
+    text-align: center;
+}
+
+.buttons-section h2 {
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.nav-item {
+    margin-bottom: 15px;
+}
+
+.nav-item a, .nav-item button {
+    display: block;
+    padding: 15px;
+    font-size: 18px;
+    color: white;
+    background-color: #28a745;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.nav-item a:hover, .nav-item button:hover {
+    background-color: #218838;
+}
+
+#meteo-dropdown {
+    display: none;
+    margin-top: 10px;
+}
+
+#meteo-dropdown form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#meteo-dropdown input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+}

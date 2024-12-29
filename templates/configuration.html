@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Configuration - Logement Éco-Responsable</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-section, .selection-section {
+            display: none;
+        }
+    </style>
+</head>
+<body class="container mt-5">
+    <h1 class="text-center mb-4">Configuration</h1>
+
+    <!-- Choix entre GET et POST -->
+    <div id="methodSelection" class="card mb-4">
+        <div class="card-header">
+            <h2>Choisir une action</h2>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="methodSelect" class="form-label">Quelle action souhaitez-vous effectuer ?</label>
+                <select id="methodSelect" class="form-select">
+                    <option value="" selected disabled>Choisissez une méthode</option>
+                    <option value="GET">Requête GET</option>
+                    <option value="POST">Requête POST</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section pour GET -->
+    <div id="getSection" class="selection-section card">
+        <div class="card-header">Requête GET</div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="getTypeSelect" class="form-label">Que souhaitez-vous récupérer ?</label>
+                <select id="getTypeSelect" class="form-select">
+                    <option value="" selected disabled>Choisissez une option</option>
+                    <option value="types">Types de Capteurs/Actionneurs</option>
+                    <option value="pieces">Pièces Disponibles</option>
+                </select>
+            </div>
+            <button id="executeGet" class="btn btn-primary">Exécuter la Requête GET</button>
+            <div id="getResult" class="mt-4">
+                <table id="resultTable" class="table table-striped table-bordered" style="display: none;">
+                    <thead id="resultTableHead"></thead>
+                    <tbody id="resultTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section pour POST -->
+    <div id="postSection" class="selection-section card">
+        <div class="card-header">Requête POST</div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="postTypeSelect" class="form-label">Quelle table souhaitez-vous configurer ?</label>
+                <select id="postTypeSelect" class="form-select">
+                    <option value="" selected disabled>Choisissez une table</option>
+                    <option value="logement">Logement</option>
+                    <option value="piece">Pièce</option>
+                    <option value="capteur">Capteur/Actionneur</option>
+                </select>
+            </div>
+            <div id="postForms" class="mt-4"></div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const methodSelect = document.getElementById('methodSelect');
+            const getSection = document.getElementById('getSection');
+            const postSection = document.getElementById('postSection');
+            const getTypeSelect = document.getElementById('getTypeSelect');
+            const resultTable = document.getElementById('resultTable');
+            const resultTableHead = document.getElementById('resultTableHead');
+            const resultTableBody = document.getElementById('resultTableBody');
+            const postTypeSelect = document.getElementById('postTypeSelect');
+            const postForms = document.getElementById('postForms');
+
+            // Afficher les sections GET ou POST
+            methodSelect.addEventListener('change', () => {
+                const method = methodSelect.value;
+
+                // Afficher la section correspondante
+                getSection.style.display = method === 'GET' ? 'block' : 'none';
+                postSection.style.display = method === 'POST' ? 'block' : 'none';
+
+                // Réinitialiser les autres éléments
+                postForms.innerHTML = '';
+                resultTable.style.display = 'none';
+            });
+
+            // Gérer les requêtes GET
+            document.getElementById('executeGet').addEventListener('click', () => {
+                const type = getTypeSelect.value;
+                if (!type) {
+                    alert('Veuillez choisir une option pour GET.');
+                    return;
+                }
+
+                fetch(`/configuration?type=${type}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length === 0) {
+                            resultTable.style.display = 'none';
+                            alert('Aucune donnée disponible.');
+                            return;
+                        }
+
+                        // Construire le tableau
+                        resultTableHead.innerHTML = '';
+                        resultTableBody.innerHTML = '';
+                        resultTable.style.display = 'table';
+
+                        // Ajouter les en-têtes
+                        const headers = Object.keys(data[0]);
+                        const headRow = document.createElement('tr');
+                        headers.forEach(header => {
+                            const th = document.createElement('th');
+                            th.textContent = header;
+                            headRow.appendChild(th);
+                        });
+                        resultTableHead.appendChild(headRow);
+
+                        // Ajouter les données
+                        data.forEach(row => {
+                            const bodyRow = document.createElement('tr');
+                            headers.forEach(header => {
+                                const td = document.createElement('td');
+                                td.textContent = row[header];
+                                bodyRow.appendChild(td);
+                            });
+                            resultTableBody.appendChild(bodyRow);
+                        });
+                    })
+                    .catch(error => {
+                        resultTable.style.display = 'none';
+                        alert('Erreur lors de la requête GET.');
+                        console.error(error);
+                    });
+            });
+
+            // Gérer les formulaires dynamiques pour POST
+            postTypeSelect.addEventListener('change', () => {
+                const type = postTypeSelect.value;
+                postForms.innerHTML = ''; // Réinitialiser les formulaires
+
+                if (type === 'logement') {
+                    postForms.innerHTML = `
+                        <form id="logementForm">
+                            <div class="mb-3">
+                                <label for="numeroRue" class="form-label">Numéro de Rue</label>
+                                <input type="text" class="form-control" id="numeroRue" placeholder="Numéro de la rue">
+                            </div>
+                            <div class="mb-3">
+                                <label for="nomRue" class="form-label">Nom de la Rue</label>
+                                <input type="text" class="form-control" id="nomRue" placeholder="Nom de la rue">
+                            </div>
+                            <div class="mb-3">
+                                <label for="ville" class="form-label">Ville</label>
+                                <input type="text" class="form-control" id="ville" placeholder="Ville">
+                            </div>
+                            <div class="mb-3">
+                                <label for="codePostal" class="form-label">Code Postal</label>
+                                <input type="text" class="form-control" id="codePostal" placeholder="Code postal">
+                            </div>
+                            <div class="mb-3">
+                                <label for="telephone" class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control" id="telephone" placeholder="Téléphone">
+                            </div>
+                            <div class="mb-3">
+                                <label for="adresseIP" class="form-label">Adresse IP</label>
+                                <input type="text" class="form-control" id="adresseIP" placeholder="Adresse IP">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </form>
+                    `;
+
+                    document.getElementById('logementForm').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const data = {
+                            config_type: 'logement',
+                            numeroRue: document.getElementById('numeroRue').value,
+                            nomRue: document.getElementById('nomRue').value,
+                            ville: document.getElementById('ville').value,
+                            codePostal: document.getElementById('codePostal').value,
+                            telephone: document.getElementById('telephone').value,
+                            adresseIP: document.getElementById('adresseIP').value,
+                        };
+
+                        fetch('/configuration', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        })
+                            .then(response => response.json())
+                            .then(data => alert(data.message))
+                            .catch(error => console.error('Erreur :', error));
+                    });
+                }
+
+                if (type === 'piece') {
+                    postForms.innerHTML = `
+                        <form id="pieceForm">
+                            <div class="mb-3">
+                                <label for="nomPiece" class="form-label">Nom de la Pièce</label>
+                                <input type="text" class="form-control" id="nomPiece" placeholder="Nom de la pièce">
+                            </div>
+                            <div class="mb-3">
+                                <label for="dimensions" class="form-label">Dimensions (x, y, z)</label>
+                                <input type="text" class="form-control" id="dimensions" placeholder="Exemple : 3, 4, 5">
+                            </div>
+                            <div class="mb-3">
+                                <label for="idLogement" class="form-label">ID du Logement</label>
+                                <input type="number" class="form-control" id="idLogement" placeholder="ID du logement associé">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Ajouter</button>
+                        </form>
+                    `;
+
+                    document.getElementById('pieceForm').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const dimensions = document.getElementById('dimensions').value.split(',').map(Number);
+                        const data = {
+                            config_type: 'piece',
+                            nomPiece: document.getElementById('nomPiece').value,
+                            x: dimensions[0],
+                            y: dimensions[1],
+                            z: dimensions[2],
+                            idLogement: document.getElementById('idLogement').value,
+                        };
+
+                        fetch('/configuration', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        })
+                            .then(response => response.json())
+                            .then(data => alert(data.message))
+                            .catch(error => console.error('Erreur :', error));
+                    });
+                }
+
+                if (type === 'capteur') {
+                    postForms.innerHTML = `
+                        <form id="capteurForm">
+                            <div class="mb-3">
+                                <label for="refCommerciale" class="form-label">Référence Commerciale</label>
+                                <input type="text" class="form-control" id="refCommerciale" placeholder="Référence commerciale">
+                            </div>
+                            <div class="mb-3">
+                                <label for="portCommunication" class="form-label">Port de Communication</label>
+                                <input type="number" class="form-control" id="portCommunication" placeholder="Port de communication">
+                            </div>
+                            <div class="mb-3">
+                                <label for="idPiece" class="form-label">ID de la Pièce</label>
+                                <input type="number" class="form-control" id="idPiece" placeholder="ID de la pièce associée">
+                            </div>
+                            <div class="mb-3">
+                                <label for="idType" class="form-label">ID du Type</label>
+                                <input type="number" class="form-control" id="idType" placeholder="ID du type de capteur/actionneur">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Ajouter</button>
+                        </form>
+                    `;
+
+                    document.getElementById('capteurForm').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const data = {
+                            config_type: 'capteur',
+                            refCommerciale: document.getElementById('refCommerciale').value,
+                            portCommunication: document.getElementById('portCommunication').value,
+                            idPiece: document.getElementById('idPiece').value,
+                            idType: document.getElementById('idType').value,
+                        };
+
+                        fetch('/configuration', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        })
+                            .then(response => response.json())
+                            .then(data => alert(data.message))
+                            .catch(error => console.error('Erreur :', error));
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

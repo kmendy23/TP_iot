@@ -1,0 +1,125 @@
+<html lang="fr"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prévisions Météo</title>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <style>
+        body {a
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .ruban-meteo {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .meteo-item {
+            flex: 0 0 auto;
+            width: 240px;
+            text-align: center;
+            margin: 5px;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .meteo-item img {
+            width: 70px;
+            height: 70px;
+            margin-bottom: 10px;
+        }
+        .meteo-info {
+            margin-top: 10px;
+        }
+        .meteo-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+        .buttons {
+            margin-top: 10px;
+        }
+        .buttons button {
+            padding: 5px 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        .buttons button:hover {
+            background-color: #0056b3;
+        }
+        #chart_div {
+            width: 80%;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Prévisions Météo pour {{ ville }}</h1>
+    <div class="ruban-meteo">
+        {% for item in chart_data %}
+        <div class="meteo-item">
+            <h3>{{ item.date }}</h3>
+            <img src="/static/icons/{{ item.icons[0] }}" alt="Icône météo">
+            <div class="meteo-info">
+                <p><strong>Température Min :</strong> {{ item.min_temp }}°C</p>
+                <p><strong>Température Max :</strong> {{ item.max_temp }}°C</p>
+                <p><strong>Description :</strong> {{ item.description }}</p>
+            </div>
+            <div class="buttons">
+                <button onclick="drawChart('{{ item.date }}', 'temperature')">Température</button>
+                <button onclick="drawChart('{{ item.date }}', 'precipitation')">Précipitations</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div id="chart_div"></div>
+    <script>
+        google.charts.load('current', {packages: ['corechart']});
+        const chartData = {{ chart_data|tojson }};
+        function drawChart(date, type) {
+            const chartDiv = document.getElementById('chart_div');
+            const data = new google.visualization.DataTable();
+            data.addColumn('string', 'Heure');
+            data.addColumn('number', type === 'temperature' ? 'Température (°C)' : 'Précipitation (mm)');
+            const rows = [];
+            chartData.forEach(day => {
+                if (day.date === date) {
+                    day.times.forEach((time, i) => {
+                        rows.push([time, type === 'temperature' ? day.temps[i] : day.precipitation[i]]);
+                    });
+                }
+            });
+            data.addRows(rows);
+            const options = {
+                title: type === 'temperature' ? `Évolution de la Température (${date})` : `Évolution des Précipitations (${date})`,
+                hAxis: { title: 'Heure', textStyle: { fontSize: 10 }, slantedText: true, slantedTextAngle: 45 },
+                vAxis: { title: type === 'temperature' ? 'Température (°C)' : 'Précipitation (mm)' },
+                legend: 'none',
+                height: 500
+            };
+            const chart = new google.visualization.LineChart(chartDiv);
+            chart.draw(data, options);
+        }
+    </script>
+
+
+</body></html>

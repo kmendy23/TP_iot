@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consommation - {{ type }} ({{ echelle }})</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        // Charger Google Charts
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        // Fonction pour dessiner le graphique
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable({{ chart_data | safe }});
+
+            // Options pour le diagramme en barre
+            var options = {
+                title: 'Consommation de {{ type }} ({{ echelle }})',
+                hAxis: { title: 'Période', minValue: 0 },
+                vAxis: { title: 'Total' },
+                legend: 'none',
+                bar: { groupWidth: "50%" }
+            };
+
+            // Création d'un ColumnChart
+            var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+    </script>
+</head>
+<body>
+    <h1>Consommation de {{ type }} ({{ echelle }})</h1>
+    <div id="chart_div" style="width: 100%; height: 500px;"></div>
+    <button onclick="window.history.back()">Retour</button>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>État des Capteurs/Actionneurs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .status.online {
+            color: white;
+            background-color: #4CAF50;
+        }
+
+        .status.offline {
+            color: white;
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>État des Capteurs/Actionneurs</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Référence Commerciale</th>
+                <th>Port de Communication</th>
+                <th>Type</th>
+                <th>Unité de Mesure</th>
+                <th>Pièce</th>
+                <th>Date d'Insertion</th>
+                <th>Dernière Mesure</th> <!-- Nouvelle colonne -->
+                <th>État</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for capteur in capteurs %}
+            <tr>
+                <td>{{ capteur['id_capteur_actionneur'] }}</td>
+                <td>{{ capteur['ref_commerciale'] }}</td>
+                <td>{{ capteur['port_communication'] }}</td>
+                <td>{{ capteur['nom_type'] }}</td>
+                <td>{{ capteur['unite_mesure'] }}</td>
+                <td>{{ capteur['nom_piece'] }}</td>
+                <td>{{ capteur['date_insertion'] }}</td>
+                <td>{{ capteur['derniere_mesure'] or 'Aucune mesure' }}</td> <!-- Affiche la dernière mesure -->
+                <td>
+                    {% if capteur['etat'] == 'En Ligne' %}
+                    <span class="status online">{{ capteur['etat'] }}</span>
+                    {% else %}
+                    <span class="status offline">{{ capteur['etat'] }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
